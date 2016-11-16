@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% block content %}
+    <div class="row">
+        <div class="col-md-offset-8 col-md-4">
+            <section class="panel panel-featured-top panel-featured-primary">
+                <div class="panel-body">
+                    <div class="widget-summary widget-summary-md">
+                        <div class="widget-summary-col widget-summary-col-icon">
+                            <div class="summary-icon bg-primary">
+                                <i class="fa fa-calendar"></i>
+                            </div>
+                        </div>
+                        <div class="widget-summary-col">
+                            <div class="summary">
+                                <h4 class="title">Сегодня</h4>
+
+                                <div class="info">
+                                    <strong class="amount">{{ options.today.strftime('%d %B %Y') }}</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            <section class="panel panel-featured-top panel-featured-secondary">
+                <div class="panel-body">
+                    <div class="widget-summary widget-summary-md">
+                        <div class="widget-summary-col widget-summary-col-icon">
+                            <div class="summary-icon bg-secondary">
+                                <i class="fa fa-user"></i>
+                            </div>
+                        </div>
+                        <div class="widget-summary-col">
+                            <div class="summary">
+                                <h4 class="title">Аккаунтов</h4>
+
+                                <div class="info">
+                                    <strong class="amount">{{ options.users }}</strong>
+                                </div>
+                            </div>
+                            <div class="summary-footer">
+                                (<a class="text-muted text-uppercase" href="/users">показать все</a>)
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+        <div class="col-md-4">
+            <section class="panel panel-featured-top panel-featured-tertiary">
+                <div class="panel-body">
+                    <div class="widget-summary widget-summary-md">
+                        <div class="widget-summary-col widget-summary-col-icon">
+                            <div class="summary-icon bg-tertiary">
+                                <i class="fa fa-graduation-cap"></i>
+                            </div>
+                        </div>
+                        <div class="widget-summary-col">
+                            <div class="summary">
+                                <h4 class="title">Студентов</h4>
+
+                                <div class="info">
+                                    <strong class="amount">{{ options.students }}</strong>
+                                </div>
+                            </div>
+                            <div class="summary-footer">
+                                (<a class="text-muted text-uppercase" href="/students">показать все</a>)
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+        <div class="col-md-4">
+            <section class="panel panel-featured-top panel-featured-tertiary">
+                <div class="panel-body">
+                    <div class="widget-summary widget-summary-md">
+                        <div class="widget-summary-col widget-summary-col-icon">
+                            <div class="summary-icon bg-tertiary">
+                                <i class="fa fa-briefcase"></i>
+                            </div>
+                        </div>
+                        <div class="widget-summary-col">
+                            <div class="summary">
+                                <h4 class="title">Тренеров</h4>
+
+                                <div class="info">
+                                    <strong class="amount">{{ options.trainers }}</strong>
+                                </div>
+                            </div>
+                            <div class="summary-footer">
+                                (<a class="text-muted text-uppercase" href="/trainers">показать все</a>)
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+{% endblock %}
+
+{% block styles %}
+    <link rel="stylesheet" href="/assets/vendor/summernote/summernote.css"/>
+    <link rel="stylesheet" href="/assets/vendor/summernote/summernote-bs3.css"/>
+{% endblock %}
+
+{% block scripts %}
+    <script src="/assets/vendor/summernote/summernote.js"></script>
+{% endblock %}

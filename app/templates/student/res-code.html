@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block content %}
+    {% if request.args %}
+    <div class="row">
+        <div class="col-xs-12">
+            <section class="panel panel-featured panel-featured-primary">
+                <header class="panel-heading">
+                    <h2 class="panel-title">Видео материалы</h2>
+                </header>
+                <div class="panel-body">
+                    <table class="table mb-none">
+                        <thead>
+                        <tr>
+                            <th width="1%">#</th>
+                            <th>Название</th>
+                            <th><i class="fa fa-fw fa-external-link"></i> Адрес</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for video in options.account.student.categories.filter_by(type='video') %}
+                            <tr>
+                                <td>{{ video.id }}</td>
+                                <td>{{ video.name }}</td>
+                                <td>{% if external_link %}<a href="{{ video.external_link }}">{{ video.external_link }}</a>{% endif %}</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+    </div>
+{% endblock %}
+
+{% block styles %}
+{% endblock %}
+
+{% block scripts %}
+{#    <script src="/assets/ajax/server.js"></script>#}
+{% endblock %}

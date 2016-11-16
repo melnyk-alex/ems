@@ -1,0 +1,418 @@
+{% extends "base.html" %}
+{% block content %}
+    {% if options.newUserList %}
+        <div class="row">
+            <div class="col-md-12">
+                <section class="panel panel-featured panel-featured-secondary">
+                    <header class="panel-heading">
+                        <h2 class="panel-title">Не закрепленные аккаунты</h2>
+                    </header>
+                    <div class="panel-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped mb-none">
+                                <thead>
+                                <tr>
+                                    <th width="5%" class="text-right">#</th>
+                                    <th width="1%"><i class="fa fa-fw fa-lock"></i></th>
+                                    <th width="30%">Имя</th>
+                                    <th>E-mail</th>
+                                    <th width="5%" colspan="2"></th>
+                                    <th width="1%"></th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for account in options.newUserList[::-1] %}
+                                    <tr>
+                                        <td class="text-right">{{ account.id }}</td>
+                                        <td><i class="fa fa-fw fa-{{ account.oauth_name }}"></i></td>
+                                        <td>{{ account.name }}</td>
+                                        <td>{{ account.email }}</td>
+                                        <td>
+                                            <a href="#turnTrainer_{{ account.id }}" class="modal-save-form">
+                                                <i class="fa fa-briefcase"></i>
+                                            </a>
+
+                                            <div id="turnTrainer_{{ account.id }}"
+                                                 class="modal-block mfp-hide modal-header-color modal-block-primary">
+                                                <section class="panel">
+                                                    <header class="panel-heading">
+                                                        <h2 class="panel-title">Добавить как тренера</h2>
+                                                    </header>
+                                                    <div class="panel-body">
+                                                        <form id="demo-form" class="form-horizontal mb-lg"
+                                                              novalidate="novalidate"
+                                                              onsubmit="return doAction('/users', 'bind/trainer/{{ account.id }}', this);">
+                                                            <div class="form-group">
+                                                                <label class="col-sm-3 control-label"
+                                                                       for="account_name">Данные</label>
+
+                                                                <div class="col-sm-9">
+                                                                    <section class="form-group-vertical">
+                                                                        <input name="account_name" id="account_name"
+                                                                               type="text"
+                                                                               class="form-control"
+                                                                               value="{{ account.name }}"
+                                                                               placeholder="Имя Фамилия"/>
+                                                                        <input id="account_email"
+                                                                               type="text"
+                                                                               class="form-control"
+                                                                               value="{{ account.email }}"
+                                                                               readonly="readonly"/>
+                                                                    </section>
+                                                                </div>
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <label class="col-sm-3 control-label" for="trainer_id">Тренер</label>
+
+                                                                <div class="col-sm-9">
+                                                                    <select id="trainer_id" class="form-control mb-md"
+                                                                            name="trainer_id" required>
+                                                                        <option value="">Новый тренер</option>
+                                                                        {% for trainer in options.trainerList %}
+                                                                            <option value="{{ trainer.id }}">{{ trainer.name }}</option>
+                                                                        {% endfor %}
+                                                                    </select>
+                                                                </div>
+                                                            </div>
+                                                        </form>
+                                                    </div>
+                                                    <footer class="panel-footer">
+                                                        <div class="row">
+                                                            <div class="col-md-12 text-right">
+                                                                <button class="btn btn-default modal-dismiss">Отмена
+                                                                </button>
+                                                                <button class="btn btn-primary modal-confirm"
+                                                                        onclick="$(this).closest('section').find('form').submit();">
+                                                                    Сохранить
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </footer>
+                                                </section>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <a href="#turnStudent_{{ account.id }}" class="modal-save-form">
+                                                <i class="fa fa-graduation-cap"></i>
+                                            </a>
+
+                                            <div id="turnStudent_{{ account.id }}"
+                                                 class="modal-block mfp-hide modal-header-color modal-block-primary">
+                                                <section class="panel">
+                                                    <header class="panel-heading">
+                                                        <h2 class="panel-title">Добавить как студента</h2>
+                                                    </header>
+                                                    <div class="panel-body">
+                                                        <div class="tabs tabs-primary">
+                                                            <ul class="nav nav-tabs">
+                                                                <li class="active">
+                                                                    <a href="#add_new" data-toggle="tab"><i
+                                                                            class="fa fa-user-plus"></i> Новый</a>
+                                                                </li>
+                                                                <li>
+                                                                    <a href="#select_existing" data-toggle="tab"><i
+                                                                            class="fa fa-user"></i> Существующий</a>
+                                                                </li>
+                                                            </ul>
+                                                            <div class="tab-content">
+                                                                <div id="add_new" class="tab-pane active">
+                                                                    <form id="account-form-add"
+                                                                          class="form-horizontal mb-lg"
+                                                                          novalidate="novalidate"
+                                                                          onsubmit="return doAction('/accounts', '{{ account.id }}/student/add', this);">
+                                                                        <div class="form-group">
+                                                                            <label class="col-sm-3 control-label"
+                                                                                   for="account_name">E-mail</label>
+
+                                                                            <div class="col-sm-9">
+                                                                                <div class="input-group input-group-icon">
+                                                                                    <span class="input-group-addon">
+                                                                                    <span class="icon"><i
+                                                                                            class="fa fa-fw fa-envelope"></i></span>
+                                                                                </span>
+                                                                                    <input id="account_email"
+                                                                                           type="text"
+                                                                                           class="form-control"
+                                                                                           value="{{ account.email }}"
+                                                                                           readonly="readonly"/>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="form-group">
+                                                                            <label class="col-sm-3 control-label"
+                                                                                   for="student_name">Данные</label>
+
+                                                                            <div class="col-sm-9">
+                                                                                <section class="form-group-vertical">
+                                                                                    <div class="input-group input-group-icon">
+                                                                                        <span class="input-group-addon">
+                                                                                            <span class="icon"><i
+                                                                                                    class="fa fa-fw fa-user"></i></span>
+                                                                                        </span>
+                                                                                        <input name="name"
+                                                                                               class="form-control"
+                                                                                               type="text"
+                                                                                               value="{{ account.name }}"
+                                                                                               placeholder="Имя Фамилия"/>
+                                                                                    </div>
+                                                                                    <div class="input-group input-group-icon">
+                                                                                        <span class="input-group-addon">
+                                                                                            <span class="icon"><i
+                                                                                                    class="fa fa-fw fa-mobile-phone"></i></span>
+                                                                                        </span>
+                                                                                        <input class="form-control"
+                                                                                               name="phone"
+                                                                                               type="text"
+                                                                                               data-plugin-masked-input
+                                                                                               data-input-mask="+38 (099) 999-99-99"
+                                                                                               placeholder="+38 (012) 345-67-89"
+                                                                                               value="{{ account.phone }}"/>
+                                                                                    </div>
+                                                                                </section>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="form-group">
+                                                                            <label class="col-sm-3 control-label"
+                                                                                   for="group_id">Группа</label>
+
+                                                                            <div class="col-sm-9">
+                                                                                <select id="group_id"
+                                                                                        class="form-control mb-md"
+                                                                                        name="group_id" required>
+                                                                                    <option value="">Выбрать группу
+                                                                                    </option>
+                                                                                    {% for group in options.groupList[::-1] %}
+                                                                                        <option value="{{ group.id }}">{{ group.name }}
+                                                                                            ({{ group.lesson_days_str() }})
+                                                                                        </option>
+                                                                                    {% endfor %}
+                                                                                </select>
+                                                                            </div>
+                                                                        </div>
+                                                                    </form>
+                                                                </div>
+                                                                <div id="select_existing" class="tab-pane">
+                                                                    <form id="account-form-existing"
+                                                                          class="form-horizontal mb-lg"
+                                                                          novalidate="novalidate"
+                                                                          onsubmit="return doAction('/accounts', '{{ account.id }}/student/bind', this);">
+                                                                        <div class="form-group">
+                                                                            <label class="col-sm-3 control-label"
+                                                                                   for="account_email">E-mail</label>
+
+                                                                            <div class="col-sm-9">
+                                                                                <div class="input-group input-group-icon">
+                                                                                    <span class="input-group-addon">
+                                                                                    <span class="icon"><i
+                                                                                            class="fa fa-fw fa-envelope"></i></span>
+                                                                                </span>
+                                                                                    <input id="account_email"
+                                                                                           type="text"
+                                                                                           class="form-control"
+                                                                                           value="{{ account.email }}"
+                                                                                           readonly="readonly"/>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="form-group">
+                                                                            <label class="col-sm-3 control-label"
+                                                                                   for="account_name">Данные</label>
+
+                                                                            <div class="col-sm-9">
+                                                                                <div class="input-group input-group-icon">
+                                                                                    <span class="input-group-addon">
+                                                                                    <span class="icon"><i
+                                                                                            class="fa fa-fw fa-user"></i></span>
+                                                                                </span>
+                                                                                    <input name="account_name"
+                                                                                           id="account_name"
+                                                                                           type="text"
+                                                                                           class="form-control"
+                                                                                           value="{{ account.name }}"
+                                                                                           readonly="readonly"
+                                                                                           placeholder="Имя Фамилия"/>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="form-group">
+                                                                            <label class="col-sm-3 control-label"
+                                                                                   for="student_id">Студент</label>
+
+                                                                            <div class="col-sm-9">
+                                                                                <select id="student_id"
+                                                                                        class="form-control mb-md"
+                                                                                        name="student_id" required>
+                                                                                    <option value="">Выбрать студента
+                                                                                    </option>
+                                                                                    {% for student in options.studentList[::-1] %}
+                                                                                        <option value="{{ student.id }}">{{ student.name }}</option>
+                                                                                    {% endfor %}
+                                                                                </select>
+                                                                            </div>
+                                                                        </div>
+                                                                    </form>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <footer class="panel-footer">
+                                                        <div class="row">
+                                                            <div class="col-md-12 text-right">
+                                                                <button class="btn btn-default modal-dismiss">Отмена
+                                                                </button>
+                                                                <button class="btn btn-primary modal-confirm"
+                                                                        onclick="$($('#add_new').hasClass('active') ? '#account-form-add' : '#account-form-existing').submit();">
+                                                                    Сохранить
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </footer>
+                                                </section>
+                                            </div>
+                                        </td>
+                                        <td class="actions-hover">
+                                            <a href="#modalRemoveApprove_{{ account.id }}"
+                                               class="modal-remove-approve text-danger"><i
+                                                    class="fa fa-times-circle-o"></i></a>
+
+                                            <div id="modalRemoveApprove_{{ account.id }}"
+                                                 class="modal-block mfp-hide modal-header-color modal-block-danger">
+                                                <section class="panel">
+                                                    <header class="panel-heading">
+                                                        <h2 class="panel-title">Внимание!</h2>
+                                                    </header>
+                                                    <div class="panel-body">
+                                                        <div class="modal-wrapper">
+                                                            <div class="modal-icon">
+                                                                <i class="fa fa-times-circle"></i>
+                                                            </div>
+                                                            <div class="modal-text">
+                                                                <h4>Внимание</h4>
+
+                                                                <p>Вы действительно хотите удалить аккаунт?</p>
+
+                                                                <p>
+                                                            <span class="fa fa-stack text-danger">
+                                                                <i class="fa fa-stack-2x fa-circle"></i>
+                                                                <i class="fa fa-stack-1x fa-inverse fa-{{ account.oauth_name }}"></i>
+                                                            </span>
+                                                                    {{ account.name }} ({{ account.email }})
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <footer class="panel-footer">
+                                                        <div class="row">
+                                                            <form class="col-md-12 text-right"
+                                                                  onsubmit="return doAction('/users', 'delete/user/{{ account.id }}', this);">
+                                                                <button class="btn btn-default modal-dismiss">Отмена
+                                                                </button>
+                                                                <button class="btn btn-danger">ДА</button>
+                                                            </form>
+                                                        </div>
+                                                    </footer>
+                                                </section>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    {% endif %}
+
+    <div class="row">
+        <div class="col-md-12">
+            <section class="panel panel-featured-top panel-featured-primary">
+                <header class="panel-heading">
+                    <h2 class="panel-title">Все аккаунты</h2>
+                </header>
+                <div class="panel-body">
+                    <table class="table table-striped" id="all-users-table">
+                        <thead>
+                        <tr>
+                            <th width="5%" class="text-right">#</th>
+                            <th width="1%"><i class="fa fa-fw fa-lock"></i></th>
+                            <th width="30%">Имя</th>
+                            <th>E-mail</th>
+                            <th width="1%"></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for account in options.userList[::-1] %}
+                            <tr>
+                                <td class="text-right">{{ account.id }}</td>
+                                <td><i class="fa fa-fw fa-{{ account.oauth_name }}"></i></td>
+                                <td>{{ account.name }}</td>
+                                <td>{{ account.email }}</td>
+                                <td class="actions-hover">
+                                    <a href="#modalRemoveApprove_{{ account.id }}"
+                                       class="modal-remove-approve text-danger"><i
+                                            class="fa fa-times-circle-o"></i></a>
+
+                                    <div id="modalRemoveApprove_{{ account.id }}"
+                                         class="modal-block mfp-hide modal-header-color modal-block-danger">
+                                        <section class="panel">
+                                            <header class="panel-heading">
+                                                <h2 class="panel-title">Внимание!</h2>
+                                            </header>
+                                            <div class="panel-body">
+                                                <div class="modal-wrapper">
+                                                    <div class="modal-icon">
+                                                        <i class="fa fa-times-circle"></i>
+                                                    </div>
+                                                    <div class="modal-text">
+                                                        <h4>Внимание</h4>
+
+                                                        <p>Вы действительно хотите отвязать аккаунт?</p>
+
+                                                        <p>
+                                                            <span class="fa fa-stack text-danger">
+                                                                <i class="fa fa-stack-2x fa-circle"></i>
+                                                                <i class="fa fa-stack-1x fa-inverse fa-{{ account.oauth_name }}"></i>
+                                                            </span>
+                                                            {{ account.name }} ({{ account.email }})
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <footer class="panel-footer">
+                                                <div class="row">
+                                                    <form class="col-md-12 text-right"
+                                                          onsubmit="return doAction('/users', 'unbind/user/{{ account.id }}', this);">
+                                                        <button class="btn btn-default modal-dismiss">Отмена
+                                                        </button>
+                                                        <button class="btn btn-danger">ДА</button>
+                                                    </form>
+                                                </div>
+                                            </footer>
+                                        </section>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block styles %}
+    <link rel="stylesheet" href="/assets/vendor/jquery-datatables-bs3/assets/css/datatables.css"/>
+{% endblock %}
+
+{% block scripts %}
+    <script src="/assets/vendor/ios7-switch/ios7-switch.js"></script>
+    {#    <script src="/assets/ajax/server.js"></script>#}
+    <script src="/assets/vendor/jquery-datatables/media/js/jquery.dataTables.js"></script>
+    <script src="/assets/vendor/jquery-datatables/extras/TableTools/js/dataTables.tableTools.min.js"></script>
+    <script src="/assets/vendor/jquery-datatables-bs3/assets/js/datatables.js"></script>
+    <script src="/assets/vendor/jquery-maskedinput/jquery.maskedinput.js"></script>
+{% endblock %}

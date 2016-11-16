@@ -1,0 +1,126 @@
+<!-- start: sidebar -->
+<aside id="sidebar-left" class="sidebar-left">
+
+    <div class="sidebar-header">
+        <div class="sidebar-title">
+            Навигация
+        </div>
+        <div class="sidebar-toggle hidden-xs" data-toggle-class="sidebar-left-collapsed" data-target="html"
+             data-fire-event="sidebar-left-toggle">
+            <i class="fa fa-bars" aria-label="Toggle sidebar"></i>
+        </div>
+    </div>
+
+    <div class="nano">
+        <div class="nano-content">
+            <nav id="menu" class="nav-main" role="navigation">
+                <ul class="nav nav-main">
+                    {% for item in options.pages %}
+                        {% if item.children %}
+                            <li class="nav-parent {{ 'nav-expanded nav-active' if options.page in item.children }}">
+                                <a href="#">
+                                    <i class="fa fa-{{ item.icon }}"></i>
+                                    <span>{{ item.name }}</span>
+                                </a>
+                                <ul class="nav nav-children">
+                                    {% for child in item.children %}
+                                        {% if child.access == options.account_type and child.name %}
+                                            <li class="{{ 'nav-active' if child == options.page }}">
+                                                <a href="/{{ child.path }}" title="{{ child.title }}">
+                                                    <i class="fa fa-{{ child.icon }}"></i>
+                                                    <span>{{ child.name }}</span>
+                                                    {% if child.path ==  'edu/calendar' %}
+                                                        <span class="pull-right label label-primary">alpha</span>
+                                                    {% endif %}
+                                                </a>
+                                            </li>
+                                        {% endif %}
+                                    {% endfor %}
+                                </ul>
+                            </li>
+{#                        {% elif item.path == 'resources' %}#}
+{#                            <li class="nav-parent {{ 'nav-active' if item == options.page }}">#}
+{#                                <a href="#" title="{{ item.title }}">#}
+{#                                    <i class="fa fa-{{ item.icon }}"></i>#}
+{#                                    <span>{{ item.name }}</span>#}
+{#                                </a>#}
+{#                                <!-- IF STUDENT HAVE ACCESS -->#}
+{#                                <ul class="nav nav-children">#}
+{#                                    {% for category in options.categories %}#}
+{#                                        <li class="{{ 'nav-active' if category == options.page }}">#}
+{#                                            <a href="/resources/{{ category.name }}"#}
+{#                                               title="{{ category.display_name }}">#}
+{#                                                <i class="fa fa-{{ category.icon }}"></i>#}
+{#                                                <span>{{ category.display_name }}</span>#}
+{#                                            </a>#}
+{#                                        </li>#}
+{#                                    {% endfor %}#}
+{#                                </ul>#}
+{#                            </li>#}
+                        {% elif item.name %}
+                            <li class="{{ 'nav-active' if item == options.page }}">
+                                <a href="/{{ item.path }}" title="{{ item.title }}">
+                                    <i class="fa fa-{{ item.icon }}"></i>
+                                    <span>{{ item.name }}</span>
+                                    {% if item.path == 'testing' %}
+                                        <span class="pull-right label label-primary">beta</span>
+                                    {% endif %}
+                                </a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+            </nav>
+            {% if current_user.student and current_user.student.stats.all() %}
+                <hr class="separator"/>
+
+                <div class="sidebar-widget widget-stats">
+                    <div class="widget-header">
+                        <h6>Статистика</h6>
+                    </div>
+                    <div class="widget-content">
+                        <ul>
+                            <li class="mb-md">
+                                <span class="stats-title">Прохождений</span>
+                                <span class="stats-complete">{{ current_user.student.stats.all()|length }}</span>
+                            </li>
+                            <li>
+                                {% set best = options.stats.best %}
+
+                                <span class="stats-title">Лучший результат</span>
+                                <span class="stats-complete">{{ best.answers }} из {{ best.questions }}</span>
+
+                                <div class="progress">
+                                    <div class="progress-bar progress-bar-success progress-without-number"
+                                         role="progressbar" aria-valuenow="{{ best.answers }}" aria-valuemin="0"
+                                         aria-valuemax="{{ best.questions }}"
+                                         style="width: {{ best.answers * 100 / best.questions }}%;">
+                                        <span class="sr-only">{{ best.answers }} из {{ best.questions }}</span>
+                                    </div>
+                                </div>
+                            </li>
+                            <li>
+                                {% set last = options.stats.last %}
+
+                                <span class="stats-title">Последний результат</span>
+                                <span class="stats-complete">{{ last.answers }} из {{ last.questions }}</span>
+
+                                <div class="progress">
+                                    <div class="progress-bar progress-bar-primary progress-without-number"
+                                         role="progressbar" aria-valuenow="{{ last.answers }}" aria-valuemin="0"
+                                         aria-valuemax="{{ last.questions }}"
+                                         style="width: {{ last.answers * 100 / last.questions }}%;">
+                                        <span class="sr-only">{{ last.answers }} из {{ last.questions }}</span>
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+
+    </div>
+
+</aside>
+<!-- end: sidebar -->

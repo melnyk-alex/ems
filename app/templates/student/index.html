@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-6">
+            <section class="panel panel-featured-top panel-featured-primary">
+                <div class="panel-body">
+                    <div class="widget-summary widget-summary-md">
+                        <div class="widget-summary-col widget-summary-col-icon">
+                            <div class="summary-icon bg-primary">
+                                <i class="fa fa-users"></i>
+                            </div>
+                        </div>
+                        <div class="widget-summary-col">
+                            <div class="summary">
+                                <h4 class="title">Общих файлов</h4>
+
+                                <div class="info">
+                                    <strong class="amount">{{ current_user.student.group.files|length if current_user.student.group else 0 }}</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <section class="panel panel-featured-top panel-featured-primary">
+                <div class="panel-body">
+                    <div class="widget-summary widget-summary-md">
+                        <div class="widget-summary-col widget-summary-col-icon">
+                            <div class="summary-icon bg-primary">
+                                <i class="fa fa-upload"></i>
+                            </div>
+                        </div>
+                        <div class="widget-summary-col">
+                            <div class="summary">
+                                <h4 class="title">Отправлено файлов</h4>
+
+                                <div class="info">
+                                    <strong class="amount">{{ current_user.files.all()|length }}</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {% if options.poll and False %}
+                <form method="post" action="/polls/{{ options.poll.id }}">
+                    <section class="panel panel-featured panel-featured-primary">
+                        <header class="panel-heading">
+                            <h2 class="panel-title">
+                                <i class="fa fa-question-circle text-normal va-middle mr-sm"></i>
+                                <span class="va-middle">Опрос</span>
+                            </h2>
+
+                            <p class="panel-subtitle">
+                                {{ options.poll.question }}
+                            </p>
+                        </header>
+                        <div class="panel-body">
+                            <div class="form-group">
+                                {% for answer in [options.poll.answer1, options.poll.answer2, options.poll.answer3, options.poll.answer4, options.poll.answer5] %}
+                                    {% if answer %}
+                                        <div class="radio-custom radio-primary">
+                                            <input id="answer_{{ loop.index }}" type="radio" name="answer"
+                                                   value="{{ loop.index }}"/>
+                                            <label for="answer_{{ loop.index }}">{{ answer }}</label>
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="panel-footer text-right">
+                            <button class="btn btn-primary" type="submit"><i class="fa fa-check"></i> Отправить</button>
+                        </div>
+                    </section>
+                </form>
+            {% endif %}
+        </div>
+        {% if current_user.student and current_user.student.group and False %}
+            <div class="col-md-4">
+                <section class="panel panel-featured panel-featured-primary">
+                    <header class="panel-heading">
+                        <div class="panel-actions">
+                            <i id="scrollStatus" class="fa fa-fw fa-arrow-down" data-toggle="tooltip"
+                               title="Прокрутить вниз"
+                               onclick="scrollToEnd(true);"></i>
+                            <i id="chatStatus" class="fa fa-fw fa-refresh" data-toggle="tooltip" title="Синхронизация"
+                               onclick="forceUpdate();"></i>
+                        </div>
+                        <h2 class="panel-title">
+                            <i id="chatStatus" class="fa fa-comments text-normal va-middle mr-sm"></i>
+                            <span class="va-middle">Чат</span>
+                        </h2>
+                    </header>
+                    <div class="panel-body">
+                        <div class="content">
+                            <ul class="simple-user-list chat-list" style="height: 300px; overflow-y: auto;">
+                                <li class="text-center" style="padding: 60px 0px;">
+                                    <div>Этот чат еще пустой</div>
+                                    <div>Напиши сообщение первым!</div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="panel-footer">
+                        <form id="chat-form" onsubmit="sendMessage($('#chat-form')); return false;">
+                            <input type="hidden" name="group" value="{{ current_user.student.group.id }}"/>
+
+                            <div class="input-group input-search">
+                                <input type="text" class="form-control" name="message" placeholder="Введите текст..."/>
+                                <span class="input-group-btn">
+                                    <button class="btn btn-default" type="submit"><i class="fa fa-comment"></i></button>
+                                </span>
+                            </div>
+                        </form>
+                    </div>
+                </section>
+            </div>
+        {% endif %}
+        <div class="col-md-6">
+            <div class="panel panel-featured panel-featured-primary">
+                <header class="panel-heading">
+                    <h2 class="panel-title">
+                        <i id="chatStatus" class="fa fa-bell-o text-normal va-middle mr-sm"></i>
+                        <span class="va-middle">События</span>
+                    </h2>
+                </header>
+                <div class="panel-body">
+                    <div class="timeline timeline-simple mt-xlg mb-md">
+                        <div class="tm-body">
+                            <ol class="tm-items">
+                                {% for item in options.history %}
+                                    <li>
+                                        <div class="tm-box">
+                                            <p class="text-muted {{ 'text-bold' if options.today.date() == item.timestamp.date() }} mb-none">
+                                                <i class="fa fa-fw fa-calendar"></i> {{ 'Сегодня' if options.today.date() == item.timestamp.date() else item.timestamp.strftime('%d.%m.%Y') }}
+                                                <i class="fa fa-fw fa-clock-o"></i> {{ item.timestamp.strftime('%H:%M') }}
+                                            </p>
+
+                                            <p class="{{ 'text-' + item.status if item.status }}">
+                                                {% if item.icon %}
+                                                    <i class="fa fa-fw fa-{{ item.icon }}"></i>
+                                                {% endif %}
+                                                {{ item.message }}
+                                            </p>
+                                        </div>
+                                    </li>
+                                {% endfor %}
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block styles %}
+{% endblock %}
+
+{% block scripts %}
+{% endblock %}

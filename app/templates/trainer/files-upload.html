@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-xs-12">
+            <section class="panel panel-featured panel-featured-tertiary">
+                <header class="panel-heading">
+                    <h2 class="panel-title">Форма отправки файлов</h2>
+                </header>
+                <div class="panel-body">
+                    <form method="post" action="/files/upload" enctype="multipart/form-data"
+                          class="form-horizontal form-bordered">
+                        <div class="form-group">
+                            <label class="col-md-3 control-label" for="groupList">Выберите группу<i class="text-danger">*</i></label>
+
+                            <div class="col-md-9">
+                                <div class="row">
+                                    {% for group in options.account.trainer.groups.filter_by(complete=False).all()[::-1] %}
+                                        <div class="col-md-4">
+                                            <div class="checkbox-custom checkbox-default">
+                                                <input id="group_id_{{ group.id }}" name="group_share"
+                                                       value="{{ group.id }}"
+                                                       type="checkbox" {{ "checked" if options.today.weekday()|string in group.schedule
+                                                       and options.today.hour >= group.begin.hour
+                                                       and options.today.hour <= group.begin.hour + 1 }} />
+                                                <label for="group_id_{{ group.id }}">{{ group.name }}
+                                                    <i>[{{ group.lesson_days_str() }}
+                                                        <strong>{{ group.begin.strftime('%H:%M') }}</strong>]</i></label>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-md-3 control-label" for="textareaMessage">Коментарии</label>
+
+                            <div class="col-md-9">
+                                <textarea id="textareaMessage" name="comment" class="form-control" rows="5"
+                                          maxlength="512" style="resize: none;"
+                                          data-plugin-maxlength data-plugin-textarea-autosize
+                                          placeholder="Введите текст..."></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-md-3 control-label">Выберите файлы<i class="text-danger">*</i></label>
+
+                            <div class="col-lg-9">
+                                <div class="fileupload fileupload-new" data-provides="fileupload">
+                                    <div class="input-append">
+                                        <div class="uneditable-input">
+                                            <i class="fa fa-file fileupload-exists"></i>
+                                            <span class="fileupload-preview"></span>
+                                        </div>
+                                        <span class="btn btn-default btn-file">
+                                            <span class="fileupload-exists">Изменить</span>
+                                            <span class="fileupload-new">Выбрать</span>
+                                            <input type="file" name="home_task" multiple/>
+                                        </span>
+                                        <a href="#" class="btn btn-default fileupload-exists" data-dismiss="fileupload">Удалить</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <button class="btn bg-tertiary pull-right" onclick="send(event)">
+                                <i class="fa fa-refresh refreshing"></i> Отправить
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </section>
+        </div>
+    </div>
+{% endblock %}
+
+{% block styles %}
+    <link rel="stylesheet" href="/assets/vendor/bootstrap-fileupload/bootstrap-fileupload.min.css"/>
+{% endblock %}
+
+{% block scripts %}
+    <script src="/assets/vendor/bootstrap-fileupload/bootstrap-fileupload.min.js"></script>
+    <script src="/assets/vendor/bootstrap-maxlength/bootstrap-maxlength.js"></script>
+{% endblock %}

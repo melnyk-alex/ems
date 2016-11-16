@@ -1,0 +1,414 @@
+{% extends "base.html" %}
+{% block content %}
+
+    <div class="row">
+        <div class="col-md-12">
+            {% if not request.args.get('show') %}
+                <section class="panel panel-featured panel-featured-tertiary">
+                    <header class="panel-heading">
+                        <h2 class="panel-title">Группы</h2>
+
+                        <div class="panel-actions">
+                            <a class="text-tertiary mr-md" href="/students/emails"><i class="fa fa-envelope"></i> E-mail
+                                адреса</a>
+                            <a class="text-tertiary mr-md" href="/students/phones"><i class="fa fa-phone"></i> Телефоны</a>
+
+                            <a class="modal-save-form text-tertiary" href="#modalAddForm">
+                                <i class="fa fa-plus"></i> Добавить группу
+                            </a>
+
+                            <div id="modalAddForm" class="modal-block mfp-hide modal-header-color modal-block-success">
+                                <section class="panel">
+                                    <header class="panel-heading">
+                                        <h2 class="panel-title">Добавить группу</h2>
+                                    </header>
+                                    <div class="panel-body">
+                                        <form id="demo-form" class="form-horizontal mb-lg" novalidate="novalidate"
+                                              onsubmit="return doAction('/groups', 'add', this);">
+                                            <input type="hidden" name="active" value="on"/>
+
+                                            <div class="form-group">
+                                                <label class="col-sm-3 control-label" for="group_name">Название<span
+                                                        class="text-danger">*</span></label>
+
+                                                <div class="col-sm-9">
+                                                    <input id="group_name" type="text" name="name" class="form-control"
+                                                           placeholder="К примеру 30415" required
+                                                           value="{{ options.next_group_name }}"/>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-sm-3 control-label" for="trainer_id">Тренер</label>
+
+                                                <div class="col-sm-9">
+                                                    <select id="trainer_id" class="form-control mb-md" name="trainer_id"
+                                                            required>
+                                                        <option value="">Выберите тренера</option>
+                                                        {% for trainer in options.trainerList %}
+                                                            <option value="{{ trainer.id }}">{{ trainer.name }}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-sm-3 control-label" for="start_date">Начило
+                                                    занятий<span
+                                                            class="text-danger">*</span></label>
+
+                                                <div class="col-sm-9">
+                                                    <div class="input-group">
+                                                <span class="input-group-addon">
+                                                    <i class="fa fa-calendar"></i>
+                                                </span>
+                                                        <input id="start_date" name="date" type="text"
+                                                               class="form-control" data-plugin-datepicker
+                                                               data-date-language="ru" data-date-week-start="1"
+                                                               data-date-format="dd.mm.yyyy"
+                                                               data-date-days-of-week-disabled="5,"
+                                                               data-date-today-btn="true"
+                                                               data-date-today-highlight="true"
+                                                               value="{{ options.today.strftime('%d.%m.%Y') }}">
+                                                <span class="input-group-addon">
+                                                    <i class="fa fa-clock-o"></i>
+                                                </span>
+                                                        <input name="time" type="text" data-plugin-timepicker
+                                                               class="form-control"
+                                                               data-plugin-options='{ "showMeridian": false }'>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-sm-3 control-label" for="start_date">Дни
+                                                    занятий</label>
+                                                <div class="col-sm-9">
+                                                    {% for day in [
+                                                    {'value':'MO','title':'Понедельник', 'color': 'primary'},
+                                                    {'value':'TU','title':'Вторник', 'color': 'primary'},
+                                                    {'value':'WE','title':'Среда', 'color': 'primary'},
+                                                    {'value':'TH','title':'Четверг', 'color': 'primary'},
+                                                    {'value':'FR','title':'Пятница', 'color': 'default'},
+                                                    {'value':'SA','title':'Суббота', 'color': 'warning'},
+                                                    {'value':'SU','title':'Воскресенье', 'color': 'warning'}] %}
+                                                        <div class="checkbox-custom checkbox-{{ day['color'] }} col-sm-4">
+                                                            <input name="weekdays" type="checkbox"
+                                                                   id="checkboxWeekday-{{ day['value'] }}"
+                                                                   value="{{ day['value'] }}"/>
+                                                            <label for="checkboxWeekday-{{ day['value'] }}">{{ day['title'] }}</label>
+                                                        </div>
+                                                    {% endfor %}
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                    <footer class="panel-footer">
+                                        <div class="row">
+                                            <div class="col-md-12 text-right">
+                                                <button class="btn btn-default modal-dismiss">Отмена</button>
+                                                <button class="btn btn-success modal-confirm"
+                                                        onclick="$(this).closest('section').find('form').submit();">
+                                                    Добавить
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </footer>
+                                </section>
+                            </div>
+                        </div>
+                    </header>
+                    <div class="panel-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped mb-none">
+                                <thead>
+                                <tr>
+                                    <th width="10%" class="text-right">Номер</th>
+                                    <th width="1%"></th>
+                                    <th>Тренер</th>
+                                    <th width="15%">Начало</th>
+                                    <th width="10%">Дни</th>
+                                    <th width="10%">Время</th>
+                                    <th width="1%"></th>
+                                    <th width="1%"></th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for group in options.groupList[::-1] %}
+                                    <tr class="{{ 'dark' if request.args.get('select')|int == group.id }}">
+                                        <td class="text-right"><a
+                                                href="./groups?show={{ group.id }}">{{ group.name }}</a></a>
+                                        </td>
+                                        <td>
+                                            <i class="fa fa-{{ 'check' if group.complete else 'play' }}-circle text-{{ 'success' if group.complete else 'primary' }}"></i>
+                                        </td>
+                                        <td>{{ group.trainer.name if group.trainer }}</td>
+                                        <td>{{ group.begin.strftime('%d.%m.%Y') }}</td>
+                                        <td>{{ group.lesson_days_str() }}</td>
+                                        <td>{{ group.begin.strftime('%H:%M') }}</td>
+                                        <td>
+                                            <a href="#modalEditForm_{{ group.id }}" class="modal-save-form"><i
+                                                    class="fa fa-edit"></i></a>
+
+                                            <div id="modalEditForm_{{ group.id }}"
+                                                 class="modal-block mfp-hide modal-header-color modal-block-primary">
+                                                <section class="panel">
+                                                    <header class="panel-heading">
+                                                        <h2 class="panel-title">Изменить группу "{{ group.name }}"</h2>
+                                                    </header>
+                                                    <div class="panel-body">
+                                                        <form id="demo-form" class="form-horizontal mb-lg"
+                                                              novalidate="novalidate"
+                                                              onsubmit="return doAction('/groups', '{{ group.id }}/edit', this);">
+                                                            <div class="form-group">
+                                                                <label class="col-sm-3 control-label" for="group_name">Название<span
+                                                                        class="text-danger">*</span></label>
+
+                                                                <div class="col-sm-9">
+                                                                    <input id="group_name" type="text" name="name"
+                                                                           class="form-control" value="{{ group.name }}"
+                                                                           placeholder="К примеру EE30415" required/>
+                                                                </div>
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <label class="col-sm-3 control-label" for="trainer_id">Тренер</label>
+
+                                                                <div class="col-sm-9">
+                                                                    <select id="trainer_id" class="form-control mb-md"
+                                                                            name="trainer_id" required>
+                                                                        <option value="">Выберите тренера</option>
+                                                                        {% for trainer in options.trainerList %}
+                                                                            <option value="{{ trainer.id }}" {{ 'selected' if trainer == group.trainer }}>{{ trainer.name }}</option>
+                                                                        {% endfor %}
+                                                                    </select>
+                                                                </div>
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <label class="col-sm-3 control-label" for="start_date">Начало<span
+                                                                        class="text-danger">*</span></label>
+
+                                                                <div class="col-sm-9">
+                                                                    <div class="input-group">
+                                                                    <span class="input-group-addon">
+                                                                        <i class="fa fa-calendar"></i>
+                                                                    </span>
+                                                                        <input id="start_date" name="date" type="text"
+                                                                               class="form-control"
+                                                                               data-plugin-datepicker
+                                                                               data-date-language="ru"
+                                                                               data-date-week-start="1"
+                                                                               data-date-format="dd.mm.yyyy"
+                                                                               value="{{ group.begin.strftime('%d.%m.%Y') }}"
+                                                                               data-date-days-of-week-disabled="5,"
+                                                                               data-date-today-btn="true"
+                                                                               data-date-today-highlight="true"/>
+                                                                    <span class="input-group-addon">
+                                                                        <i class="fa fa-clock-o"></i>
+                                                                    </span>
+                                                                        <input name="time" type="text"
+                                                                               data-plugin-timepicker
+                                                                               class="form-control"
+                                                                               data-plugin-options='{ "showMeridian": false }'
+                                                                               value="{{ group.begin.strftime('%H:%M') }}"/>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <label class="col-sm-3 control-label" for="start_date">Дни
+                                                                    занятий</label>
+                                                                <div class="col-sm-9">
+                                                                    {% for day in [
+                                                            {'value':'MO','title':'Понедельник', 'color': 'primary'},
+                                                            {'value':'TU','title':'Вторник', 'color': 'primary'},
+                                                            {'value':'WE','title':'Среда', 'color': 'primary'},
+                                                            {'value':'TH','title':'Четверг', 'color': 'primary'},
+                                                            {'value':'FR','title':'Пятница', 'color': 'default'},
+                                                            {'value':'SA','title':'Суббота', 'color': 'warning'},
+                                                            {'value':'SU','title':'Воскресенье', 'color': 'warning'}] %}
+                                                                        <div class="checkbox-custom checkbox-{{ day['color'] }} col-sm-4">
+                                                                            <input name="weekdays" type="checkbox"
+                                                                                   id="checkboxWeekday-{{ day['value'] }}"
+                                                                                   value="{{ day['value'] }}" {{ 'checked' if day['value'] in group.schedule }}/>
+                                                                            <label for="checkboxWeekday-{{ day['value'] }}">{{ day['title'] }}</label>
+                                                                        </div>
+                                                                    {% endfor %}
+                                                                </div>
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <label class="col-sm-3 control-label"
+                                                                       for="group_active">Завершили</label>
+
+                                                                <div class="col-md-2">
+                                                                    <div class="switch switch-sm switch-success">
+                                                                        <input type="checkbox" name="complete"
+                                                                               data-plugin-ios-switch {{ 'checked' if group.complete }}/>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-md-7">
+                                                                    <div class="input-group">
+                                                                        <span class="input-group-addon">
+                                                                            <i class="fa fa-calendar"></i>
+                                                                        </span>
+                                                                        <input id="start_date" name="complete_date"
+                                                                               type="text"
+                                                                               class="form-control"
+                                                                               data-plugin-datepicker
+                                                                               data-date-language="ru"
+                                                                               data-date-week-start="1"
+                                                                               data-date-format="dd.mm.yyyy"
+                                                                               value="{{ group.begin.strftime('%d.%m.%Y') }}"
+                                                                               data-date-start-date="{{ group.begin.strftime('%d.%m.%Y') if group.begin < options.today else options.today.strftime('%d.%m.%Y') }}"
+                                                                               data-date-days-of-week-disabled="5,"
+                                                                               data-date-today-btn="true"
+                                                                               data-date-today-highlight="true"/>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </form>
+                                                    </div>
+                                                    <footer class="panel-footer">
+                                                        <div class="row">
+                                                            <div class="col-md-12 text-right">
+                                                                <button class="btn btn-default modal-dismiss">Отмена
+                                                                </button>
+                                                                <button class="btn btn-primary modal-confirm"
+                                                                        onclick="$(this).closest('section').find('form').submit();">
+                                                                    Сохранить
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </footer>
+                                                </section>
+                                            </div>
+                                        </td>
+                                        <td class="actions-hover">
+                                            <a href="#modalRemoveApprove_{{ group.id }}"
+                                               class="modal-remove-approve text-danger"><i
+                                                    class="fa fa-times-circle-o"></i></a>
+
+                                            <div id="modalRemoveApprove_{{ group.id }}"
+                                                 class="modal-block mfp-hide modal-header-color modal-block-danger">
+                                                <section class="panel">
+                                                    <header class="panel-heading">
+                                                        <h2 class="panel-title">Внимание!</h2>
+                                                    </header>
+                                                    <div class="panel-body">
+                                                        <div class="modal-wrapper">
+                                                            <div class="modal-icon">
+                                                                <i class="fa fa-times-circle"></i>
+                                                            </div>
+                                                            <div class="modal-text">
+                                                                <h4>Внимание</h4>
+
+                                                                <p>Вы действительно хотите удалить группу
+                                                                    "{{ group.name }}"?</p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <footer class="panel-footer">
+                                                        <div class="row">
+                                                            <form class="col-md-12 text-right"
+                                                                  onsubmit="return doAction('/groups', '{{ group.id }}/delete', this);">
+                                                                <button class="btn btn-default modal-dismiss">Отмена
+                                                                </button>
+                                                                <button class="btn btn-danger">ДА</button>
+                                                            </form>
+                                                        </div>
+                                                    </footer>
+                                                </section>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+            {% else %}
+                {% set group = options.groups.filter_by(id=request.args.get('show')|int).first() %}
+
+                <section class="panel panel-featured panel-featured-tertiary">
+                    <header class="panel-heading">
+                        <h2 class="panel-title">Группа {{ group.name }}</h2>
+
+                        <p class="panel-subtitle"><a href="./groups">« показать все группы</a></p>
+
+                        <div class="panel-actions">
+                            <a class="text-tertiary mr-md" href="/students/emails/{{ group.id }}"><i
+                                    class="fa fa-envelope"></i> E-mail адреса</a>
+                            <a class="text-tertiary mr-md" href="/students/phones/{{ group.id }}"><i
+                                    class="fa fa-phone"></i> Телефоны</a>
+                        </div>
+                    </header>
+                    <div class="panel-body">
+                        <table class="table mb-none" id="trainerFileTable">
+                            <thead>
+                            <tr>
+                                <th>Имя</th>
+                                <th>Номер</th>
+                                <th style="width: 1%;"></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for student in group.students %}
+                                <tr>
+                                    <td>{{ student.name }}</td>
+                                    <td>{{ student.phone }}</td>
+
+                                    <td class="actions-hover">
+{#                                        <a href="#modalRemoveApproveStudent_{{ student.id }}"#}
+{#                                           class="modal-remove-approve text-danger"><i#}
+{#                                                class="fa fa-times-circle-o"></i></a>#}
+
+                                        <div id="modalRemoveApproveStudent_{{ student.id }}"
+                                             class="modal-block mfp-hide modal-header-color modal-block-danger">
+                                            <section class="panel">
+                                                <header class="panel-heading">
+                                                    <h2 class="panel-title">Внимание!</h2>
+                                                </header>
+                                                <div class="panel-body">
+                                                    <div class="modal-wrapper">
+                                                        <div class="modal-icon">
+                                                            <i class="fa fa-times-circle"></i>
+                                                        </div>
+                                                        <div class="modal-text">
+                                                            <h4>Внимание</h4>
+
+                                                            <p>Вы действительно хотите удалить студента "{{ student.name }}" из группы
+                                                                "{{ group.name }}"?</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <footer class="panel-footer">
+                                                    <div class="row">
+                                                        <form class="col-md-12 text-right"
+                                                              onsubmit="return doAction('/student', '{{ student.id }}/group/{{ group.id }}/delete', this);">
+                                                            <button class="btn btn-default modal-dismiss">Отмена
+                                                            </button>
+                                                            <button class="btn btn-danger">ДА</button>
+                                                        </form>
+                                                    </div>
+                                                </footer>
+                                            </section>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            {% endif %}
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block styles %}
+    <link rel="stylesheet" href="/assets/vendor/bootstrap-timepicker/css/bootstrap-timepicker.css"/>
+{% endblock %}
+
+{% block scripts %}
+    {#    <script src="/assets/ajax/server.js"></script>#}
+    <script src="/assets/vendor/jquery-maskedinput/jquery.maskedinput.js"></script>
+    <script src="/assets/vendor/bootstrap-timepicker/js/bootstrap-timepicker.js"></script>
+    <script src="/assets/vendor/ios7-switch/ios7-switch.js"></script>
+{% endblock %}

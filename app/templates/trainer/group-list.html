@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="row">
+        {% if not request.args.get('show') %}
+            <div class="col-md-12">
+                <section class="panel panel-featured panel-featured-primary">
+                    <header class="panel-heading">
+                        <h2 class="panel-title">Группы</h2>
+                    </header>
+                    <div class="panel-body">
+                        <table class="table mb-none" id="trainerFileTable">
+                            <thead>
+                            <tr>
+                                <th width="1%"></th>
+                                <th width="25%">Группа</th>
+                                <th>Дни (Время)</th>
+                                <th width="15%" class="text-right">Начало</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for group in current_user.trainer.groups[::-1] %}
+                                <tr>
+                                    <td>
+                                        <i class="fa fa-fw fa-{{ 'check' if group.complete else 'play' }}-circle text-{{ 'success' if group.complete else 'primary' }}"></i>
+                                    </td>
+                                    <td><a href="./groups?show={{ group.id }}">{{ group.name }}</a></td>
+                                    <td>
+                                        {{ group.lesson_days_str() }}
+                                        <b>({{ group.lesson_time_str() }})</b>
+                                    </td>
+                                    <td class="text-right">{{ group.begin.strftime('%d.%m.%Y') }}</td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+        {% else %}
+            {% set group = current_user.trainer.groups.filter_by(id=request.args.get('show')|int).first() %}
+
+            <div class="col-md-12">
+                <section class="panel panel-featured panel-featured-primary">
+                    <header class="panel-heading">
+                        <h2 class="panel-title">Группа {{ group.name }}</h2>
+
+                        <p class="panel-subtitle"><a href="./groups">« показать все группы</a></p>
+                    </header>
+                    <div class="panel-body">
+                        <table class="table mb-none" id="trainerFileTable">
+                            <thead>
+                            <tr>
+                                <th>Имя</th>
+                                <th>Номер</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for student in group.students %}
+                                <tr>
+                                    <td>{{ student.name }}</td>
+                                    <td>{{ student.phone }}</td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+            {% if False %}
+                <div class="col-md-4">
+                    <section class="panel panel-featured panel-featured-primary">
+                        <header class="panel-heading">
+                            <div class="panel-actions">
+                                <i id="scrollStatus" class="fa fa-fw fa-arrow-down" data-toggle="tooltip"
+                                   title="Прокрутить вниз"
+                                   onclick="scrollToEnd(true);"></i>
+                                <i id="chatStatus" class="fa fa-fw fa-refresh" data-toggle="tooltip"
+                                   title="Синхронизация"
+                                   onclick="forceUpdate();"></i>
+                            </div>
+                            <h2 class="panel-title">
+                                <i id="chatStatus" class="fa fa-comments text-normal va-middle mr-sm"></i>
+                                <span class="va-middle">Чат</span>
+                            </h2>
+                        </header>
+                        <div class="panel-body">
+                            <div class="content">
+                                <ul class="simple-user-list chat-list" style="height: 300px; overflow-y: auto;"
+                                    group="{{ group.id }}">
+                                    <li class="text-center" style="padding: 60px 0px;">
+                                        <div>Этот чат еще пустой</div>
+                                        <div>Напиши сообщение первый!</div>
+                                    </li>
+                                </ul>
+                                {#                        <hr class="dotted short">#}
+                                {#                        <div class="text-right">#}
+                                {#                            <a class="text-uppercase text-muted" href="#">(View All)</a>#}
+                                {#                        </div>#}
+                            </div>
+                        </div>
+                        <div class="panel-footer">
+                            <form id="chat-form" onsubmit="sendMessage($('#chat-form')); return false;">
+                                <input type="hidden" name="group" value="{{ group.id }}"/>
+
+                                <div class="input-group input-search">
+                                    <input type="text" class="form-control" name="message"
+                                           placeholder="Введите текст..."/>
+                            <span class="input-group-btn">
+                                <button class="btn btn-default" type="submit"><i class="fa fa-comment"></i></button>
+                            </span>
+                                </div>
+                            </form>
+                        </div>
+                    </section>
+                </div>
+            {% endif %}
+        {% endif %}
+    </div>
+{% endblock %}
+
+{% block styles %}
+
+{% endblock %}
+
+{% block scripts %}
+
+{% endblock %}

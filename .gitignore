@@ -1,0 +1,9 @@
+.idea/
+env/
+flask/
+*.pyc
+**/*.pyc
+app.db
+access.info
+stucab.sock
+cred/

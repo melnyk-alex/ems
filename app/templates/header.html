@@ -1,0 +1,111 @@
+<!-- start: header -->
+<header class="header">
+    <div class="logo-container">
+        <a href="/" class="logo">
+            <img src="/assets/images/logo.png" height="35" alt="Stucab"/>
+        </a>
+
+        <div class="visible-xs toggle-sidebar-left" data-toggle-class="sidebar-left-opened" data-target="html"
+             data-fire-event="sidebar-left-opened">
+            <i class="fa fa-bars" aria-label="Toggle sidebar"></i>
+        </div>
+    </div>
+
+    <!-- start: search & user box -->
+    <div class="header-right">
+        <ul class="notifications">
+            {% if options.account_type == 'root' %}
+                <li>
+                    <a href="#" class="dropdown-toggle notification-icon" data-toggle="dropdown">
+                        <i class="fa fa-user-plus"></i>
+                        <span class="badge">{{ options.newUserList|length if options.newUserList|length > 0 }}</span>
+                    </a>
+
+                    <div class="dropdown-menu notification-menu">
+                        <div class="notification-title">
+                            <span class="pull-right label label-default">{{ options.newUserList|length }}</span>
+                            Новые пользователи
+                        </div>
+
+                        <div class="content">
+                            <ul>
+                                {% for user in options.newUserList %}
+                                    <li>
+                                        <a href="/users" class="clearfix">
+                                            <figure class="image">
+                                                <img src="{{ user.picture }}" alt="{{ user.name }}"
+                                                     class="img-circle" width="35"/>
+                                            </figure>
+                                            <span class="title">{{ user.name }}</span>
+                                            <span class="message">{{ user.email }}</span>
+                                        </a>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+
+                            <hr/>
+
+                            <div class="text-right">
+                                <a href="/users" class="view-more">Показать всех</a>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+            {% endif %}
+            {% if options.account_type == 'student' and False %}
+                <li>
+                    <a href="#" class="dropdown-toggle notification-icon" data-toggle="dropdown">
+                        <i class="fa fa-comments"></i>
+                        {#                        <span id="chatNotifyBadge" class="badge">1</span>#}
+                    </a>
+
+                    <div class="dropdown-menu notification-menu">
+                        <div class="notification-title">
+                            Последние сообщения
+                            {#                            <span class="pull-right label label-default">5</span>#}
+                        </div>
+
+                        <div class="content">
+                            <ul id="chatNotifyList">
+                                <li>Сообщений пока еще нет</li>
+                            </ul>
+
+                            <hr/>
+
+                            <div class="text-right">
+                                <a href="/" class="view-more">К чату</a>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+            {% endif %}
+        </ul>
+
+        <span class="separator"></span>
+
+        <div id="userbox" class="userbox">
+            <a href="#" data-toggle="dropdown">
+                <figure id="user_{{ current_user.id }}" class="profile-picture">
+                    <img src="{{ current_user.picture }}" alt="{{ current_user.name }}" class="img-circle" />
+                </figure>
+                <div class="profile-info">
+                    <span class="name">{{ current_user.name }}</span>
+                    <span class="role">{{ current_user.email }}</span>
+                </div>
+
+                <i class="fa custom-caret"></i>
+            </a>
+
+            <div class="dropdown-menu">
+                <ul class="list-unstyled">
+                    <li class="divider"></li>
+                    <li>
+                        <a role="menuitem" tabindex="-1" href="/logout"><i class="fa fa-power-off"></i> Выход</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <!-- end: search & user box -->
+</header>
+<!-- end: header -->

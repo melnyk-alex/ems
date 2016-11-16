@@ -1,0 +1,205 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-12">
+            <section class="panel">
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div id="calendar"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+{% endblock %}
+
+{% block styles %}
+    <link rel="stylesheet" href="/assets/vendor/jquery-ui/css/ui-lightness/jquery-ui-1.10.4.custom.css"/>
+    <link rel="stylesheet" href="/assets/vendor/fullcalendar/fullcalendar.css"/>
+    <link rel="stylesheet" href="/assets/vendor/fullcalendar/fullcalendar.print.css" media="print"/>
+{% endblock %}
+
+{% block scripts %}
+    <script src="/assets/vendor/jquery-ui/js/jquery-ui-1.10.4.custom.js"></script>
+    <script src="/assets/vendor/jquery-ui-touch-punch/jquery.ui.touch-punch.js"></script>
+    <script src="/assets/vendor/fullcalendar/lib/moment.min.js"></script>
+    <script src="/assets/vendor/fullcalendar/fullcalendar.js"></script>
+    <script src="/assets/vendor/fullcalendar/gcal.js"></script>
+    <script>
+
+        //AIzaSyCzD13gAJeQApwC-peowJrIVVRZvmSrn8M
+        $(document).ready(function () {
+            var $calendar = $('#calendar');
+            $calendar.fullCalendar({
+                dayNamesShort: ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'],
+                header: {
+                    left: 'title',
+                    right: 'prev,today,next,basicDay,basicWeek,month'
+                },
+                displayEventTime: true,
+                timeFormat: 'HH:mm',
+
+                titleFormat: {
+                    month: 'MMMM YYYY',      // September 2009
+                    week: "MMM d YYYY",      // Sep 13 2009
+                    day: 'dddd, MMM d, YYYY' // Tuesday, Sep 8, 2009
+                },
+
+                themeButtonIcons: {
+                    prev: 'fa fa-caret-left',
+                    next: 'fa fa-caret-right'
+                },
+
+                firstDay: 1,
+                googleCalendarApiKey: 'AIzaSyDGaG2l_1ExLZBy-afJySlNRRtEcjiw2es',
+                eventSources: [
+                    {googleCalendarId: '{{ current_user.trainer.accounts.filter_by(main=1).first().email }}', eventColor: '#378006'}
+                ]
+            });
+
+            // FIX INPUTS TO BOOTSTRAP VERSIONS
+            var $calendarButtons = $calendar.find('.fc-header-right > span');
+            $calendarButtons
+                .filter('.fc-button-prev, .fc-button-today, .fc-button-next')
+                    .wrapAll('<div class="btn-group mt-sm mr-md mb-sm ml-sm"></div>')
+                    .parent()
+                    .after('<br class="hidden"/>');
+
+            $calendarButtons
+                .not('.fc-button-prev, .fc-button-today, .fc-button-next')
+                    .wrapAll('<div class="btn-group mb-sm mt-sm"></div>');
+
+            $calendarButtons
+                .attr({ 'class': 'btn btn-sm btn-default' });
+        });
+
+    </script>
+
+    <script>
+        var initCalendar = function () {
+            var $calendar = $('#calendar');
+
+            $calendar.fullCalendar({
+                header: {
+                    left: 'title',
+                    right: 'prev,today,next,basicDay,basicWeek,month'
+                },
+                firstDay: 1,
+
+                timeFormat: 'hh:mm',
+
+                titleFormat: {
+                    month: 'MMMM YYYY',      // September 2009
+                    week: "MMM d YYYY",      // Sep 13 2009
+                    day: 'dddd, MMM d, YYYY' // Tuesday, Sep 8, 2009
+                },
+
+                themeButtonIcons: {
+                    prev: 'fa fa-caret-left',
+                    next: 'fa fa-caret-right'
+                },
+
+                editable: false,
+                droppable: false, // this allows things to be dropped onto the calendar !!!
+                drop: function (date, allDay) { // this function is called when something is dropped
+                    var $externalEvent = $(this);
+                    // retrieve the dropped element's stored Event Object
+                    var originalEventObject = $externalEvent.data('eventObject');
+
+                    // we need to copy it, so that multiple events don't have a reference to the same object
+                    var copiedEventObject = $.extend({}, originalEventObject);
+
+                    // assign it the date that was reported
+                    copiedEventObject.start = date;
+                    copiedEventObject.allDay = allDay;
+                    copiedEventObject.className = $externalEvent.attr('data-event-class');
+
+                    // render the event on the calendar
+                    // the last `true` argument determines if the event "sticks" (http://arshaw.com/fullcalendar/docs/event_rendering/renderEvent/)
+                    $('#calendar').fullCalendar('renderEvent', copiedEventObject, true);
+
+                    // is the "remove after drop" checkbox checked?
+                    if ($('#RemoveAfterDrop').is(':checked')) {
+                        // if so, remove the element from the "Draggable Events" list
+                        $(this).remove();
+                    }
+
+                },
+                events: [
+                    {%- for group in current_user.trainer.groups.all() %} {
+                        id: {{ group.id }},
+                        title: 'Группа {{ group.name }}',
+                        start: new Date({{ group.begin.year }}, {{ group.begin.month }}, {{ group.begin.day }}, {{ group.begin.hour }}, {{ group.begin.minute }}, {{ group.begin.second }}),
+                        {#                        end: new Date({{ group.begin.year + 1 }}, {{ group.begin.month }}, {{ group.begin.day }}, {{ group.begin.hour }}, {{ group.begin.minute }}, {{ group.begin.second }}),#}
+                        allDay: false
+                    }, {% endfor -%}
+                    {#                    {#}
+                    {#                        title: 'All Day Event',#}
+                    {#                        start: new Date(y, m, 1)#}
+                    {#                    },#}
+                    {#                    {#}
+                    {#                        title: 'Long Event',#}
+                    {#                        start: new Date(y, m, d - 5),#}
+                    {#                        end: new Date(y, m, d - 2)#}
+                    {#                    },#}
+                    {#                    {#}
+                    {#                        id: 999,#}
+                    {#                        title: 'Repeating Event',#}
+                    {#                        start: new Date(y, m, d - 3, 16, 0),#}
+                    {#                        allDay: false#}
+                    {#                    },#}
+                    {#                    {#}
+                    {#                        id: 999,#}
+                    {#                        title: 'Repeating Event',#}
+                    {#                        start: new Date(y, m, d + 4, 16, 0),#}
+                    {#                        allDay: false#}
+                    {#                    },#}
+                    {#                    {#}
+                    {#                        title: 'Meeting',#}
+                    {#                        start: new Date(y, m, d, 10, 30),#}
+                    {#                        allDay: false#}
+                    {#                    },#}
+                    {#                    {#}
+                    {#                        title: 'Lunch',#}
+                    {#                        start: new Date(y, m, d, 12, 0),#}
+                    {#                        end: new Date(y, m, d, 14, 0),#}
+                    {#                        allDay: false,#}
+                    {#                        className: 'fc-event-danger'#}
+                    {#                    },#}
+                    {#                    {#}
+                    {#                        title: 'Birthday Party',#}
+                    {#                        start: new Date(y, m, d + 1, 19, 0),#}
+                    {#                        end: new Date(y, m, d + 1, 22, 30),#}
+                    {#                        allDay: false#}
+                    {#                    },#}
+                    {#                    {#}
+                    {#                        title: 'Click for Google',#}
+                    {#                        start: new Date(y, m, 28),#}
+                    {#                        end: new Date(y, m, 29),#}
+                    {#                        url: 'http://google.com/'#}
+                    {#                    }#}
+                ]
+            });
+
+            // FIX INPUTS TO BOOTSTRAP VERSIONS
+            var $calendarButtons = $calendar.find('.fc-header-right > span');
+            $calendarButtons
+                    .filter('.fc-button-prev, .fc-button-today, .fc-button-next')
+                    .wrapAll('<div class="btn-group mt-sm mr-md mb-sm ml-sm"></div>')
+                    .parent()
+                    .after('<br class="hidden"/>');
+
+            $calendarButtons
+                    .not('.fc-button-prev, .fc-button-today, .fc-button-next')
+                    .wrapAll('<div class="btn-group mb-sm mt-sm"></div>');
+
+            $calendarButtons
+                    .attr({'class': 'btn btn-sm btn-default'});
+        };
+
+        {#        initCalendar();#}
+    </script>
+{% endblock %}

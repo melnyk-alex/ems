@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-xs-12">
+            <section class="panel panel-featured panel-featured-primary">
+                <header class="panel-heading">
+                    <h2 class="panel-title">Отправленные файлы (домашняя работа)</h2>
+
+                    <p class="panel-subtitle">
+                        {% if not request.args.get('show') %}
+                            <a href="{{ request.path }}?show=all">Показать все</a>
+                        {% else %}
+                            <a href="{{ request.path }}">Показать последние 20</a>
+                        {% endif %}
+                    </p>
+                </header>
+                <div class="panel-body">
+                    <table class="table mb-none">
+                        <thead>
+                        <tr>
+                            <th width="8%">Дата</th>
+                            <th width="8%">Время</th>
+                            <th>Название</th>
+                            <th width="1%"><i class="fa fa-fw fa-info-circle"></i></th>
+                            <th width="5%" class="text-center"><i class="fa fa-fw fa-barcode"></i></th>
+                            <th width="15%" class="text-right">Размер</th>
+                            <th width="1%"></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for file in (options.uploadedFiles[::] if request.args.get('show') == 'all' else options.uploadedFiles[-20::]) %}
+                            <tr>
+                                <td>{{ file.timestamp.strftime('%d.%m.%Y') }}</td>
+                                <td>{{ file.timestamp.strftime('%H:%M:%S') }}</td>
+                                <td><a href="/files/{{ file.checksum }}/{{ file.name }}">{{ file.name }}</a></td>
+                                <td>
+                                    <span class="text-tertiary" data-toggle="tooltip" data-placement="top"
+                                          title="{{ file.comment or 'Не подписано' }}">
+                                        <i class="fa fa-fw fa-info"></i>
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    <span class="text-tertiary" data-toggle="tooltip" data-placement="top"
+                                          title="{{ file.checksum }}">md5</span>
+                                </td>
+                                <td class="text-right"><span data-toggle="tooltip" data-placement="top"
+                                                             title="{{ file.size }} bytes">{{ file.size_str() }}</span>
+                                </td>
+                                <td>
+                                    <a href="#deleteModal_{{ file.id }}" class="modal-remove-approve text-warning"><i
+                                            class="fa fa-times-circle-o"></i></a>
+
+                                    <div id="deleteModal_{{ file.id }}"
+                                         class="modal-block modal-header-color modal-block-warning mfp-hide">
+                                        <section class="panel">
+                                            <header class="panel-heading">
+                                                <h2 class="panel-title">Внимание!</h2>
+                                            </header>
+                                            <div class="panel-body">
+                                                <div class="modal-wrapper">
+                                                    <div class="modal-icon">
+                                                        <i class="fa fa-times-circle"></i>
+                                                    </div>
+                                                    <div class="modal-text">
+                                                        <h4>Внимание</h4>
+
+                                                        <p>Вы действительно хотите удалить файл "{{ file.name }}"?</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <footer class="panel-footer">
+                                                <div class="row">
+                                                    <form class="col-md-12 text-right"
+                                                          onsubmit="return doAction('/files', 'delete', this);">
+                                                        <input name="id" type="hidden" value="{{ file.id }}"/>
+                                                        <button class="btn btn-default modal-dismiss">Отмена
+                                                        </button>
+                                                        <button class="btn btn-warning">ДА</button>
+                                                    </form>
+                                                </div>
+                                            </footer>
+                                        </section>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+    </div>
+{% endblock %}
+
+{% block styles %}
+{% endblock %}
+
+{% block scripts %}
+{#    <script src="/assets/ajax/server.js"></script>#}
+{% endblock %}

@@ -1,0 +1,261 @@
+{% extends "base.html" %}
+
+{% block content %}
+    {% if options.testing %}
+        {% if not options.testing.finished %}
+            {% set test = options.testing.tests[options.testing.index] %}
+
+            <div class="col-md-12">
+                <section
+                        class="panel panel-featured {{ 'panel-featured-primary' if options.testing.answers.has_key(test.id|string) }}">
+                    <header class="panel-heading">
+                        <h2 class="panel-title">Тестирование</h2>
+                    </header>
+                    <div class="panel-body" style="min-height: 500px;">
+                        <div class="col-md-1 text-right">
+                            <span class="fa fa-stack">
+                                <i class="fa fa-stack-2x fa-circle"></i>
+                                <i class="fa fa-stack-1x fa-inverse">{{ options.testing.index + 1 }}</i>
+                            </span>
+                        </div>
+                        <div class="col-md-10">
+                            <textarea data-plugin-codemirror
+                                      data-plugin-options='{ "mode": "text/x-java", "readOnly": "true" }'>{{ test.question|safe }}</textarea>
+
+                            <form id="testing_form_{{ test.id }}" method="post" action="/testing/submit">
+                                <input type="hidden" name="id" value="{{ test.id }}"/>
+                                <ul style="list-style: none;">
+                                    {% for option in [test.option1, test.option2, test.option3, test.option4, test.option5] %}
+                                        {% if option %}
+                                            <li>
+                                                <input type="radio" name="option" value="{{ loop.index }}"
+                                                       id="opt_{{ loop.index }}" {{ 'checked' if options.testing.answers[test.id|string] and loop.index == options.testing.answers[test.id|string]|int }} />
+                                                <label for="opt_{{ loop.index }}">{{ option }}</label>
+                                            </li>
+                                        {% endif %}
+                                    {% endfor %}
+                                </ul>
+                            </form>
+                        </div>
+                    </div>
+                    <footer class="panel-footer">
+                        <div class="row">
+                            <div class="col-md-6 text-left">
+                                <a href="/testing/prev"
+                                   class="btn btn-default {{ 'disabled' if options.testing.index < 1 }}">
+                                    <i class="fa fa-chevron-circle-left"></i> Предыдущий
+                                </a>
+                            </div>
+                            <div class="col-md-6 text-right">
+                                <a href="#" class="btn btn-primary"
+                                   onclick="$('#testing_form_{{ test.id }}')[0].submit(); return false;">
+                                    {% if options.testing.index < 9 %}
+                                        Следующий <i class="fa fa-chevron-circle-right"></i>
+                                    {% else %}
+                                        Результат <i class="fa fa-flag"></i>
+                                    {% endif %}
+                                </a>
+                            </div>
+                        </div>
+                    </footer>
+                </section>
+            </div>
+        {% else %}
+            <div class="col-md-12">
+                <section
+                        class="panel panel-featured panel-featured-tertiary">
+                    <header class="panel-heading">
+                        <h2 class="panel-title">Тестирование</h2>
+                    </header>
+                    <div class="panel-body">
+                        <div class="alert alert-default">
+                            <strong>Тестирование завешено!</strong>
+                            Правильных ответов <strong>{{ options.testing.correct }} из 10</strong> вопросов.
+                        </div>
+                        {% for test in options.testing.tests %}
+                            {% set user_answer = options.testing.answers.get(test.id|string)|int %}
+
+                            <div class="row">
+                                <div class="col-md-1 text-right">
+                                    <span class="fa fa-stack">
+                                        <i class="fa fa-stack-2x fa-circle"></i>
+                                        <i class="fa fa-stack-1x fa-inverse">{{ loop.index }}</i>
+                                    </span>
+                                </div>
+                                <div class="col-md-10">
+                                    <textarea data-plugin-codemirror
+                                              data-plugin-options='{ "mode": "text/x-java", "readOnly": "true" }'>{{ test.question|safe }}</textarea>
+
+                                    <ul style="list-style: none;">
+                                        {% for option in [test.option1, test.option2, test.option3, test.option4, test.option5] %}
+                                            {% if option is not none %}
+                                                {% if user_answer == loop.index == test.correctanswer %}
+                                                    <li class="{{ 'text-success' }}">
+                                                        <input type="radio"
+                                                               name="option_{{ test.id }}"
+                                                               id="opt_{{ test.id }}_{{ loop.index }}"
+                                                               disabled
+                                                                {{ 'checked' if loop.index == user_answer }}/>
+                                                        <label for="opt_{{ test.id }}_{{ loop.index }}">{{ option }}</label>
+                                                        <i class="fa fa-question-circle" title="{{ test.answer }}"
+                                                           data-toggle="tooltip" data-html="true"
+                                                           data-placement="right"></i>
+                                                    </li>
+                                                {% else %}
+                                                    <li class="{{ 'text-warning' if user_answer == loop.index != test.correctanswer }} {{ 'text-primary' if user_answer != loop.index == test.correctanswer }}">
+                                                        <input type="radio"
+                                                               name="option_{{ test.id }}"
+                                                               id="opt_{{ test.id }}_{{ loop.index }}"
+                                                               disabled
+                                                                {{ 'checked' if loop.index == user_answer }}/>
+                                                        <label for="opt_{{ test.id }}_{{ loop.index }}">{{ option }}</label>
+                                                        {% if user_answer != loop.index == test.correctanswer %}
+                                                            <i class="fa fa-exclamation-circle"
+                                                               title="{{ test.answer }}"
+                                                               data-toggle="tooltip" data-html="true"
+                                                               data-placement="right"></i>
+                                                        {% endif %}
+                                                    </li>
+                                                {% endif %}
+                                            {% endif %}
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <footer class="panel-footer">
+                        <div class="row">
+                            <div class="col-md-12 text-right">
+                                <a href="/testing/finish" class="btn btn-primary">
+                                    Готово <i class="fa fa-check"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </footer>
+                </section>
+            </div>
+        {% endif %}
+    {% else %}
+        <div class="col-md-12">
+            <section class="panel panel-featured panel-featured-primary">
+                <header class="panel-heading">
+                    <h2 class="panel-title">Тестирование</h2>
+
+                    <p class="panel-subtitle">Пройдя тесты Вы можете проверить свой уровень знаний в языке
+                        программирования Java, узнать о подводных камнях и сконцентрироваться на важных моментах в
+                        процессе обучения.</p>
+                </header>
+                <div class="panel-body">
+                    {#                    <div class="chart chart-md" id="morrisLine"></div>#}
+                    <div class="chart chart-md" id="flotTests"></div>
+                </div>
+                <footer class="panel-footer">
+                    <div class="row">
+                        <div class="col-md-12 text-right">
+                            <a href="/testing/begin" class="btn btn-primary">
+                                Начать тестирование <i class="fa fa-"></i>
+                            </a>
+                        </div>
+                    </div>
+                </footer>
+            </section>
+        </div>
+    {% endif %}
+{% endblock %}
+
+{% block styles %}
+    <link rel="stylesheet" href="/assets/vendor/codemirror/lib/codemirror.css"/>
+    <link rel="stylesheet" href="/assets/vendor/codemirror/theme/monokai.css"/>
+    <link rel="stylesheet" href="/assets/vendor/morris/morris.css"/>
+    <style>
+        .CodeMirror {
+            margin: 10px 0px;
+            border-bottom: 5px solid #eee;
+            height: auto;
+        }
+    </style>
+{% endblock %}
+
+{% block scripts %}
+    <script src="/assets/vendor/codemirror/lib/codemirror.js"></script>
+    <script src="/assets/vendor/codemirror/addon/selection/active-line.js"></script>
+    <script src="/assets/vendor/codemirror/addon/edit/matchbrackets.js"></script>
+    <script src="/assets/vendor/codemirror/mode/clike/clike.js"></script>
+
+    {#    <script src="/assets/vendor/raphael/raphael.js"></script>#}
+    {#    <script src="/assets/vendor/morris/morris.js"></script>#}
+
+    <script src="/assets/vendor/flot/jquery.flot.js"></script>
+    <script src="/assets/vendor/flot-tooltip/jquery.flot.tooltip.js"></script>
+    <script src="/assets/vendor/flot/jquery.flot.pie.js"></script>
+    <script src="/assets/vendor/flot/jquery.flot.categories.js"></script>
+    <script src="/assets/vendor/flot/jquery.flot.resize.js"></script>
+
+    <script type="text/javascript">
+
+        var flotBasicData = [{
+            data: [
+                {% for stat in current_user.student.stats %}
+                    [{{ loop.index0 }}, {{stat.answers}}],
+                {% endfor %}
+            ],
+            label: "&nbsp;{{ current_user.name }}",
+            color: "#0088cc"
+        }];
+
+        (function () {
+            var plot = $.plot('#flotTests', flotBasicData, {
+                series: {
+                    lines: {
+                        show: true,
+                        fill: true,
+                        lineWidth: 2,
+                        fillColor: {
+                            colors: [{
+                                opacity: 0.0
+                            }, {
+                                opacity: 1.0
+                            }]
+                        }
+                    },
+                    points: {
+                        lineWidth: 3,
+                        show: true
+                    },
+                    shadowSize: 2
+                },
+                legend: {
+                    show: false
+                },
+                grid: {
+                    hoverable: true,
+                    clickable: true,
+                    borderColor: 'rgba(0,0,0,0.1)',
+                    borderWidth: 2,
+                    labelMargin: 15,
+                    backgroundColor: 'transparent'
+                },
+                yaxis: {
+                    min: 0,
+                    max: 10,
+                    color: 'rgba(0,0,0,0.1)'
+                },
+                xaxis: {
+                    tickSize: 1,
+                    color: 'rgba(0,0,0,0.1)'
+                },
+                tooltip: true,
+                tooltipOpts: {
+                    content: '%s: Value of %x is %y',
+                    shifts: {
+                        x: -60,
+                        y: 25
+                    },
+                    defaultTheme: false
+                }
+            });
+        })();
+
+    </script>
+{% endblock %}

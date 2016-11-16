@@ -1,0 +1,22 @@
+setuptools
+pip
+wheel
+pip-review
+
+Delorean
+Flask
+Flask-Login
+Flask-Mail
+Flask-MySQLdb
+Flask-SQLAlchemy
+hurry.filesize
+requests
+
+logging
+
+gunicorn
+futures
+requests-cache
+
+# Google OAuth2
+google-api-python-client

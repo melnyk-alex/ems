@@ -1,0 +1,250 @@
+{% extends "base.html" %}
+{% block content %}
+
+    <div class="row">
+        <div class="col-md-12">
+            <section class="panel panel-featured panel-featured-primary">
+                <header class="panel-heading">
+                    <h2 class="panel-title">Студенты</h2>
+
+                    <div class="panel-actions">
+                        <a class="text-primary mr-md" href="/students/contacts"><i class="fa fa-user"></i> Контакты</a>
+                        <a class="text-primary mr-md" href="/students/emails"><i class="fa fa-envelope"></i> E-mail
+                            адреса</a>
+                        <a class="text-primary mr-md" href="/students/phones"><i class="fa fa-phone"></i> Телефоны</a>
+
+{#                        <a class="modal-save-form text-tertiary" href="#modalAddForm">#}
+{#                            <i class="fa fa-plus"></i> Добавить студента#}
+{#                        </a>#}
+{##}
+{#                        <div id="modalAddForm"#}
+{#                             class="modal-block mfp-hide modal-header-color modal-block-success">#}
+{#                            <section class="panel">#}
+{#                                <header class="panel-heading">#}
+{#                                    <h2 class="panel-title">Добавить студента</h2>#}
+{#                                </header>#}
+{#                                <div class="panel-body">#}
+{#                                    <form id="demo-form" class="form-horizontal mb-lg"#}
+{#                                          novalidate="novalidate"#}
+{#                                          onsubmit="return doAction('/students', 'add', this);">#}
+{#                                        <div class="form-group">#}
+{#                                            <label class="col-sm-3 control-label" for="student_name">Имя</label>#}
+{##}
+{#                                            <div class="col-sm-9">#}
+{#                                                <input id="student_name" name="name" type="text"#}
+{#                                                       placeholder="Имя Фамилия"#}
+{#                                                       class="form-control">#}
+{#                                            </div>#}
+{#                                        </div>#}
+{#                                        <div class="form-group">#}
+{#                                            <label class="col-sm-3 control-label" for="student_phone">Телефон</label>#}
+{##}
+{#                                            <div class="col-sm-9">#}
+{#                                                <input id="student_phone" name="phone" type="text"#}
+{#                                                       data-plugin-masked-input#}
+{#                                                       data-input-mask="+38 (099) 999-99-99"#}
+{#                                                       placeholder="+38 (023) 123-12-34"#}
+{#                                                       class="form-control">#}
+{#                                            </div>#}
+{#                                        </div>#}
+{#                                        <div class="form-group">#}
+{#                                            <label class="col-sm-3 control-label" for="group_id">Группа</label>#}
+{##}
+{#                                            <div class="col-sm-9">#}
+{#                                                <select id="group_id" class="form-control mb-md"#}
+{#                                                        name="group_id" required>#}
+{#                                                    <option value="">Выберите группу</option>#}
+{#                                                    {% for group in options.groupList[::-1] %}#}
+{#                                                        <option value="{{ group.id }}">{{ group.name }}#}
+{#                                                            ({{ group.lesson_days_str() }})#}
+{#                                                        </option>#}
+{#                                                    {% endfor %}#}
+{#                                                </select>#}
+{#                                            </div>#}
+{#                                        </div>#}
+{#                                    </form>#}
+{#                                </div>#}
+{#                                <footer class="panel-footer">#}
+{#                                    <div class="row">#}
+{#                                        <div class="col-md-12 text-right">#}
+{#                                            <button class="btn btn-default modal-dismiss">Отмена#}
+{#                                            </button>#}
+{#                                            <button class="btn btn-success modal-confirm"#}
+{#                                                    onclick="$(this).closest('section').find('form').submit();">#}
+{#                                                Сохранить#}
+{#                                            </button>#}
+{#                                        </div>#}
+{#                                    </div>#}
+{#                                </footer>#}
+{#                            </section>#}
+{#                        </div>#}
+                    </div>
+                </header>
+                <div class="panel-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped mb-none">
+                            <thead>
+                            <tr>
+                                <th width="5%" class="text-right">#</th>
+                                <th width="8%" class="text-center"><i class="fa fa-users"></i></th>
+                                <th width="5%" class="center">OAuth</th>
+                                <th width="25%">Имя</th>
+                                <th width="20%">Телефон</th>
+                                <th width="1%" colspan="2"></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for student in options.studentList[::-1] %}
+                                <tr id="student_{{ student.id }}">
+                                    <td class="text-right">{{ student.id }}</td>
+                                    <td class="text-center">
+                                        <a href="./groups?show={{ student.group.id }}">{{ student.group.name }}</a>
+                                    </td>
+                                    <td class="text-center">
+                                        {%- for account in student.accounts %}
+                                            <i class="fa fa-fw fa-{{ account.oauth_name }} text-tertiary"
+                                               data-toggle="tooltip"
+                                               data-placement="top" title="{{ account.email }}"></i>
+                                        {% endfor -%}
+                                    </td>
+                                    <td>{{ student.name }}</td>
+                                    <td>{{ student.phone }}</td>
+                                    <td>
+                                        <a href="#modalEditForm_{{ student.id }}" class="modal-save-form"><i
+                                                class="fa fa-edit"></i></a>
+
+                                        <div id="modalEditForm_{{ student.id }}"
+                                             class="modal-block mfp-hide modal-header-color modal-block-primary">
+                                            <section class="panel">
+                                                <header class="panel-heading">
+                                                    <h2 class="panel-title">Изменить данные студента
+                                                        "{{ student.name }}"</h2>
+                                                </header>
+                                                <div class="panel-body">
+                                                    <form id="demo-form" class="form-horizontal mb-lg"
+                                                          novalidate="novalidate"
+                                                          onsubmit="return doAction('/students', '{{ student.id }}/edit', this);">
+                                                        <div class="form-group">
+                                                            <label class="col-sm-3 control-label"
+                                                                   for="student_name">Данные</label>
+
+                                                            <div class="col-sm-9">
+                                                                <section class="form-group-vertical">
+                                                                    <div class="input-group input-group-icon">
+                                                                                        <span class="input-group-addon">
+                                                                                            <span class="icon"><i
+                                                                                                    class="fa fa-fw fa-user"></i></span>
+                                                                                        </span>
+                                                                        <input name="name"
+                                                                               class="form-control"
+                                                                               type="text"
+                                                                               value="{{ student.name }}"
+                                                                               placeholder="Имя Фамилия"/>
+                                                                    </div>
+                                                                    <div class="input-group input-group-icon">
+                                                                                        <span class="input-group-addon">
+                                                                                            <span class="icon"><i
+                                                                                                    class="fa fa-fw fa-mobile-phone"></i></span>
+                                                                                        </span>
+                                                                        <input class="form-control"
+                                                                               name="phone"
+                                                                               type="text"
+                                                                               data-plugin-masked-input
+                                                                               data-input-mask="+38 (099) 999-99-99"
+                                                                               placeholder="+38 (012) 345-67-89"
+                                                                                value="{{ student.phone }}"/>
+                                                                    </div>
+                                                                </section>
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label class="col-sm-3 control-label"
+                                                                   for="group_id">Группа</label>
+
+                                                            <div class="col-sm-9">
+                                                                <select id="group_id"
+                                                                        class="form-control mb-md"
+                                                                        name="group_id" required>
+                                                                    <option value="">Выбрать группу
+                                                                    </option>
+                                                                    {% for group in options.groupList[::-1] %}
+                                                                        <option value="{{ group.id }}" {{ 'selected' if student.group == group }}>{{ group.name }}
+                                                                            ({{ group.lesson_days_str() }})
+                                                                        </option>
+                                                                    {% endfor %}
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                                <footer class="panel-footer">
+                                                    <div class="row">
+                                                        <div class="col-md-12 text-right">
+                                                            <button class="btn btn-default modal-dismiss">Отмена
+                                                            </button>
+                                                            <button class="btn btn-primary modal-confirm"
+                                                                    onclick="$(this).closest('section').find('form').submit();">
+                                                                Сохранить
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </footer>
+                                            </section>
+                                        </div>
+                                    </td>
+                                    <td class="actions-hover">
+                                        <a href="#modalRemoveApprove_{{ student.id }}"
+                                           class="modal-remove-approve text-danger"><i
+                                                class="fa fa-times-circle-o"></i></a>
+
+                                        <div id="modalRemoveApprove_{{ student.id }}"
+                                             class="modal-block mfp-hide modal-header-color modal-block-danger">
+                                            <section class="panel">
+                                                <header class="panel-heading">
+                                                    <h2 class="panel-title">Внимание!</h2>
+                                                </header>
+                                                <div class="panel-body">
+                                                    <div class="modal-wrapper">
+                                                        <div class="modal-icon">
+                                                            <i class="fa fa-times-circle"></i>
+                                                        </div>
+                                                        <div class="modal-text">
+                                                            <h4>Внимание</h4>
+
+                                                            <p>Вы действительно хотите удалить студента
+                                                                "{{ student.name }}"?</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <footer class="panel-footer">
+                                                    <div class="row">
+                                                        <form class="col-md-12 text-right"
+                                                              onsubmit="return doAction('/students', '{{ student.id }}/delete', this);">
+                                                            <button class="btn btn-default modal-dismiss">Отмена
+                                                            </button>
+                                                            <button class="btn btn-danger">ДА</button>
+                                                        </form>
+                                                    </div>
+                                                </footer>
+                                            </section>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block styles %}
+
+{% endblock %}
+
+{% block scripts %}
+    <script src="/assets/vendor/jquery-maskedinput/jquery.maskedinput.js"></script>
+{% endblock %}

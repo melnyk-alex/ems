@@ -1,0 +1,50 @@
+# coding: utf-8
+import os
+
+DEBUG = False
+
+APP_DIR = os.path.abspath(os.path.dirname(__file__))
+LOG_REPO = os.path.join(APP_DIR, '../logs/')
+LOG_PATH = os.path.join(LOG_REPO, 'stucab.log')
+
+# SERVER
+HOSTNAME = 'http://edu.host.com.ua' if not DEBUG else 'http://127.0.0.1:5000'
+
+# SESSION
+SECRET_KEY = '3967eae66c5022587157301feb26ae1319d34c35'
+
+# UPLOADING
+WEB_ROOT_EMAIL = 'ROOTEMAIL@gmail.com'
+WEB_UPLOAD_DIR = os.path.join(APP_DIR, '../uploads/')
+
+# DATABASE ACCESS
+DB_SERVER = '127.0.0.1:3306'
+DB_NAME = 'edu'
+DB_USERNAME = 'USERNAME'
+DB_PASSWORD = 'PASSWORD'
+
+# DATABASE LOCATION
+SQLALCHEMY_DATABASE_URI = 'mysql://' + DB_USERNAME + ':' + DB_PASSWORD + '@' + DB_SERVER + '/' + DB_NAME + '?charset=utf8'
+
+SQLALCHEMY_TRACK_MODIFICATIONS = True
+SQLALCHEMY_ECHO = False
+
+# DATABASE POOL
+SQLALCHEMY_POOL_SIZE = 3
+SQLALCHEMY_POOL_TIMEOUT = 10
+SQLALCHEMY_POOL_RECYCLE = 7200
+SQLALCHEMY_MAX_OVERFLOW = 2
+
+# MAILING
+MAIL_SERVER = 'smtp.googlemail.com'
+MAIL_PORT = '465'
+MAIL_USE_TLS = False
+MAIL_USE_SSL = True
+MAIL_USERNAME = 'MAILUSERNAME@gmail.com'
+MAIL_PASSWORD = 'MAILPASSWORD'
+
+# E-MAILS
+MAIL_EDUCATION = 'ROOTMAIL@gmail.com'
+MAIL_SUPPORT = 'SUPPORTMAIL@gmail.com'
+
+MAX_CONTENT_LENGTH = 104857600

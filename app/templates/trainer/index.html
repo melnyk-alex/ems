@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-12">
+            <section class="panel panel-primary">
+                <header class="panel-heading">
+                    <h2 class="panel-title"><i class="fa fa-fw fa-trophy"></i> Тестирование</h2>
+
+                    <p class="panel-subtitle">Статистика прохождения тестирования</p>
+                </header>
+                <div class="panel-body">
+                    <script type="text/javascript"> var sl_list = []; </script>
+                    <table class="table mb-none" id="trainerFileTable">
+                        <thead>
+                        <tr>
+                            <th width="15%">Группа</th>
+                            <th>Студент</th>
+                            <th width="2%" class="text-center"><i class="fa fa-fw fa-check"></i></th>
+                            <th width="2%" class="text-center"><i class="fa fa-fw fa-star"></i></th>
+                            <th width="2%" class="text-center"><i class="fa fa-fw fa-repeat"></i></th>
+                            <th class="text-center"><i class="fa fa-fw fa-line-chart"></i></th>
+                            <th width="2%" class="text-center">~/~</th>
+                        </tr>
+                        </thead>
+                        {% for group in current_user.trainer.groups.filter_by(complete = False)[::] %}
+                            <tbody>
+                            {% for student in group.students %}
+                                {% set stats = student.stats.all()[:-10:-1] %}
+                                <tr>
+                                    <td>{{ group.name }}</td>
+                                    <td class="text-bold">{{ student.name }}</td>
+                                    <td class="text-center text-primary">{{ student.lastStat().answers if student.lastStat() else '-' }}</td>
+                                    <td class="text-center text-secondary">{{ student.bestStat().answers if student.bestStat() else '-' }}</td>
+                                    <td class="text-center text-tertiary">{{ student.stats.all()|length }}</td>
+                                    <td>
+                                        <div class=" text-center">
+                                            <div id="sl_tests_{{ student.id }}" class="small-chart"></div>
+                                            <script type="text/javascript">
+                                                sl_list.push({
+                                                    id: "sl_tests_{{ student.id }}",
+                                                    data: [{%- for stat in stats %}{{ stat.answers }}, {% endfor -%}]
+                                                });
+                                            </script>
+                                        </div>
+                                    </td>
+                                    <td>{{ "{0:.2f}".format(stats|sum('answers') / stats|length() if stats|length() > 0 else 0) }}</td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        {% endfor %}
+                    </table>
+                </div>
+            </section>
+        </div>
+{#        <div class="col-md-4">#}
+{#            <section class="panel panel-primary">#}
+{#                <header class="panel-heading">#}
+{#                    <h2 class="panel-title"><i class="fa fa-fw fa-calendar"></i> Сегодня</h2>#}
+{##}
+{#                    <p class="panel-subtitle">{{ options.today.strftime('%A, %d %B %Y') }}</p>#}
+{#                </header>#}
+{#                <div class="panel-body">#}
+{#                    <ul class="widget-todo-list ui-sortable">#}
+{#                        {% for group in options.timetable.today %}#}
+{#                            <li>#}
+{#                                <div class="text-left">#}
+{#                                    <i class="fa fa-fw fa-group"></i>#}
+{#                                    <label class="todo-label"><span>{{ group.name }}</span></label>#}
+{#                                </div>#}
+{#                                <div class="todo-actions">#}
+{#                                    <i class="fa fa-clock-o"></i>#}
+{#                                    {{ group.lesson_time_str() }}#}
+{#                                </div>#}
+{#                            </li>#}
+{#                        {% endfor %}#}
+{#                        {% if not options.timetable.today|length %}#}
+{#                            <li>#}
+{#                                <div class="text-center">#}
+{#                                    <label class="todo-label"><span>Сегодня нет занятий</span></label>#}
+{#                                </div>#}
+{#                            </li>#}
+{#                        {% endif %}#}
+{#                    </ul>#}
+{#                </div>#}
+{#            </section>#}
+{#        </div>#}
+{#        <div class="col-md-4">#}
+{#            <section class="panel panel-primary">#}
+{#                <header class="panel-heading">#}
+{#                    <h2 class="panel-title"><i class="fa fa-fw fa-calendar"></i> Завтра</h2>#}
+{##}
+{#                    <p class="panel-subtitle">{{ options.tomorrow.strftime('%A, %d %B %Y') }}</p>#}
+{#                </header>#}
+{#                <div class="panel-body">#}
+{#                    <ul class="widget-todo-list ui-sortable">#}
+{#                        {% for group in options.timetable.tomorrow %}#}
+{#                            <li>#}
+{#                                <div class="text-left">#}
+{#                                    <i class="fa fa-fw fa-group"></i>#}
+{#                                    <label class="todo-label"><span>{{ group.name }}</span></label>#}
+{#                                </div>#}
+{#                                <div class="todo-actions">#}
+{#                                    <i class="fa fa-clock-o"></i>#}
+{#                                    {{ group.lesson_time_str() }}#}
+{#                                </div>#}
+{#                            </li>#}
+{#                        {% endfor %}#}
+{#                        {% if not options.timetable.tomorrow|length %}#}
+{#                            <li>#}
+{#                                <div class="text-center">#}
+{#                                    <label class="todo-label"><span>Завтра нет занятий</span></label>#}
+{#                                </div>#}
+{#                            </li>#}
+{#                        {% endif %}#}
+{#                    </ul>#}
+{#                </div>#}
+{#            </section>#}
+{#        </div>#}
+    </div>
+{% endblock %}
+
+{% block styles %}
+
+{% endblock %}
+
+{% block scripts %}
+    <script type="text/javascript" src="/assets/vendor/jquery-sparkline/jquery.sparkline.js"></script>
+    <script type="text/javascript">
+        $(sl_list).each(function (n, sl) {
+            $("#" + sl.id).sparkline(sl.data, {
+                type: 'line',
+                width: '100',
+                height: '24',
+                lineColor: '#e36159',
+                fillColor: '#2baab1'
+            });
+        });
+    </script>
+{% endblock %}
